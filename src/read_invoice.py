@@ -46,7 +46,6 @@ def open_invoice(path):
 
     try:
         fp = open(path.as_posix(), 'w', encoding='utf-8')
-        print(f'Opened: {path}: {fp}')
     except OSError as e:
         fail(f'failed to open invoice file: {path}: reason: {e.strerror}')
 
