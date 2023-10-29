@@ -35,9 +35,12 @@ def parse_document(path, outfile):
         print_metadata(invoice)
         
 
-def open_invoice(path):
+def open_invoice(path, remove_any=False):
     if path.exists():
-        fail(f'failed to create invoice: file exists: {path.name}')
+        if remove_any:
+            path.unlink()
+        else:
+            fail(f'failed to create invoice: file exists: {path.name}')
 
     if path.is_dir():
         fail(f'invoice path is a directory: {path.name}')
@@ -64,9 +67,10 @@ def main():
 
     ap.add_argument('invoice', type=argparse.FileType('r'), help='the PDF invoice file to read')
     ap.add_argument('-o', '--outfile', dest='outfile', metavar='OUTFILE', type=str, default=None, help='write the CSV document to OUTFILE')
+    ap.add_argument('-r', '--remove', dest='remove', default=False, action='store_true', help='first remove any existing invoice document at the same path')
 
     args = ap.parse_args()
-    outfile = sys.stdout if args.outfile is None else open_invoice(Path(args.outfile))
+    outfile = sys.stdout if args.outfile is None else open_invoice(Path(args.outfile), remove_any=args.remove)
 
     parse_document(args.invoice.name, outfile)
 
