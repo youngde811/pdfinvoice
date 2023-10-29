@@ -56,21 +56,23 @@ def parse_document(path, outfile):
         
 
 def open_invoice(path, remove_any=False):
+    pathname = path.as_posix()
+    
+    if path.is_dir():
+        fail(f'invoice path is a directory: {pathname}')
+
     if path.exists():
         if remove_any:
             path.unlink()
         else:
-            fail(f'failed to create invoice: file exists: {path.name}')
-
-    if path.is_dir():
-        fail(f'invoice path is a directory: {path.name}')
+            fail(f'failed to create invoice: file exists: {pathname}')
 
     fp = None
 
     try:
-        fp = open(path.as_posix(), 'w', encoding='utf-8')
+        fp = open(pathname, 'w', encoding='utf-8')
     except OSError as e:
-        fail(f'failed to open invoice file: {path}: reason: {e.strerror}')
+        fail(f'failed to open invoice file: {pathname}: reason: {e.strerror}')
 
     return fp
 
