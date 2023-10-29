@@ -7,10 +7,27 @@ import argparse
 import os
 import sys
 
-from PyPDF2 import PdfFileReader
+from PyPDF2 import PdfReader
 
-progname = os.path.basename(argv[0])
+progname = os.path.basename(sys.argv[0])
 
+
+def print_metadata(invoice):
+    print(f'Document info: {invoice.metadata}')
+    print(f'Pages: {invoice.pages}')
+    print(f'Page count: {len(invoice.pages)}')
+
+    page = invoice.pages[0]
+
+    print(f'First page: {page}')
+    
+
+def load_document(path):
+    with open(path, 'rb') as strm:
+        invoice = PdfReader(strm)
+
+        print_metadata(invoice)
+        
 
 def main():
     desc = """
@@ -22,8 +39,14 @@ def main():
 
     ap = argparse.ArgumentParser(prog=progname, description=desc)
 
-    ap.add_argument('invoice', type=argparse.FileType('r'), dest='invoice', help='the PDF invoice file to read')
+    ap.add_argument('invoice', type=argparse.FileType('r'), help='the PDF invoice file to read')
     ap.add_argument('-o', '--outfile', dest='outfile', metavar='OUTFILE', help='write the CSV document to OUTFILE')
+
+    args = ap.parse_args()
+
+    load_document(args.invoice.name)
+
+    sys.exit(0)
     
 
 if __name__ == '__main__':
