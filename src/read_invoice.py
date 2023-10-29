@@ -4,7 +4,9 @@
 # and create a CSV file that may be imported into various spreadsheets.
 
 import argparse
+import datetime
 import os
+import re
 import sys
 
 from pathlib import Path
@@ -12,11 +14,21 @@ from PyPDF2 import PdfReader
 
 progname = os.path.basename(sys.argv[0])
 
-
 def fail(msg):
     print(f'{progname}: fatal error: {msg}')
 
     sys.exit(1)
+
+
+def extract_date(line):
+    date = None
+
+    try:
+        date = datetime.datetime.strptime(line, '%m/%d/%Y %I:%M %p')
+    except ValueError:
+        pass
+
+    return date
 
 
 def print_metadata(invoice):
@@ -25,7 +37,15 @@ def print_metadata(invoice):
     print(f'Page count: {len(invoice.pages)}')
 
     for page in invoice.pages:
-        print(f'Text: {page.extract_text()}')
+        lines = page.extract_text().split('\n')
+
+        for line in lines:
+            date = extract_date(line)
+
+            if date is None:
+                print(f'Line: {line}')
+            else:
+                print(f'Date is: {date}')
     
 
 def parse_document(path, outfile):
