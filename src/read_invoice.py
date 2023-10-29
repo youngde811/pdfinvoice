@@ -31,7 +31,7 @@ def extract_date(line):
     return date
 
 
-def print_metadata(invoice):
+def print_document_detail(invoice):
     print(f'Document info: {invoice.metadata}')
     print(f'Pages: {invoice.pages}')
     print(f'Page count: {len(invoice.pages)}')
@@ -52,7 +52,7 @@ def parse_document(path, outfile):
     with open(path, 'rb') as strm:
         invoice = PdfReader(strm)
 
-        print_metadata(invoice)
+        print_document_detail(invoice)
         
 
 def open_invoice(path, remove_any=False):
