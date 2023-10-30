@@ -76,19 +76,19 @@ def print_document_detail(invoice):
 
         lines = page.extract_text().split('\n')
 
-        for line in lines
+        for line in lines:
             date = extract_date(line)
             header = extract_header(line)
             item = {}
 
             if date is not None:
-                items['date'] = date
+                item['date'] = date
                 print(f'  Date: {date.strftime("%m/%d/%Y %I:%M %p")}')
             elif header is not None:
                 document['header'] = header
                 print(f'  Header: {header}')
             else:
-                items['item'] = line
+                item['item'] = line
                 print(f'  Line: {line}')
 
             items.append(item)
