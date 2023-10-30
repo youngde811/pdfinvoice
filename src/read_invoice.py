@@ -27,7 +27,7 @@ def extract_date(line):
     date = None
     m = re.match(date_re, line)
 
-    if m is not None:
+    if m is not None and len(m.groups()) > 0:
         date = datetime.datetime.strptime(m.group('date'), '%m/%d/%Y %I:%M %p')
 
     return date
