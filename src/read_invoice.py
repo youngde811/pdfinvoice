@@ -52,7 +52,7 @@ def print_document_detail(invoice):
             if date is None:
                 print(f'  Line: {line}')
             else:
-                print(f'  Date is: {date}')
+                print(f'  Date is: {date.strftime("%m/%d/%Y %I:%M %p")}')
 
         pid += 1
 
