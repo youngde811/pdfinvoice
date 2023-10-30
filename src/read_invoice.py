@@ -15,12 +15,23 @@ from PyPDF2 import PdfReader
 progname = os.path.basename(sys.argv[0])
 
 date_re = re.compile(r'(?P<date>\d{1,2}?/\d{1,2}?/\d{4}?\s+\d{1,2}:\d{1,2}\s+(AM|PM)).*')
+header_re = re.compile(r'(?P<header>Item\s+Description\s+Color\s+Size\s+Pieces\s+Price\s+Total).*')
 
 
 def fail(msg):
     print(f'{progname}: fatal error: {msg}')
 
     sys.exit(1)
+
+
+def extract_header(line):
+    header = None
+    m = re.match(header_re, line)
+
+    if m is not None and len(m.groups()) > 0:
+        header = m.group('header').split()
+
+    return header
 
 
 def extract_date(line):
@@ -37,24 +48,25 @@ def print_document_detail(invoice):
     print(f'Document info: {invoice.metadata}')
     print(f'Pages: {invoice.pages}')
     print(f'Page count: {len(invoice.pages)}')
+    print()
 
-    pid = 1
+    for pid in range(len(invoice.pages)):
+        page = invoice.pages[pid]
 
-    for page in invoice.pages:
-        print()
-        print(f'Page {pid}:')
+        print(f'Page {pid + 1}:')
 
         lines = page.extract_text().split('\n')
 
         for line in lines:
             date = extract_date(line)
+            header = extract_header(line)
 
-            if date is None:
-                print(f'  Line: {line}')
+            if date is not None:
+                print(f'  Date: {date.strftime("%m/%d/%Y %I:%M %p")}')
+            elif header is not None:
+                print(f'  Header: {header}')
             else:
-                print(f'  Date is: {date.strftime("%m/%d/%Y %I:%M %p")}')
-
-        pid += 1
+                print(f'  Line: {line}')
 
 
 def parse_document(path, outfile):
