@@ -55,10 +55,11 @@ def print_document_detail(invoice):
     document = {
         "metadata": None,
         "page_count": 0,
+        "header": None,
         "items": [],
     }
 
-    document['metadata'] = invoice.metadata
+    document['metadata'] = str(invoice.metadata)
     document['page_count'] = len(invoice.pages)
 
     print(f'Document info: {invoice.metadata}')
@@ -66,13 +67,14 @@ def print_document_detail(invoice):
     print(f'Page count: {len(invoice.pages)}')
     print()
 
+    items = []
+    
     for pid in range(len(invoice.pages)):
         page = invoice.pages[pid]
 
         print(f'Page {pid + 1}:')
 
         lines = page.extract_text().split('\n')
-        items = []
 
         for line in lines
             date = extract_date(line)
@@ -83,7 +85,7 @@ def print_document_detail(invoice):
                 items['date'] = date
                 print(f'  Date: {date.strftime("%m/%d/%Y %I:%M %p")}')
             elif header is not None:
-                item['header'] = header
+                document['header'] = header
                 print(f'  Header: {header}')
             else:
                 items['item'] = line
@@ -91,7 +93,9 @@ def print_document_detail(invoice):
 
             items.append(item)
             
-        document['items'].append(items)
+    document['items'].append(items)
+
+    return document
 
 
 def parse_document(path, outfile):
