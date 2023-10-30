@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
 # This Python program may be used to read a very particular type of PDF invoice, extract the necessary text,
-# and create a CSV file that may be imported into various spreadsheets.
+# and create a CSV file that may be imported into various spreadsheets. The parser here does not have to be
+# elegant or efficient; we just need to extract the necessary information with a response time that isn't
+# annoying.
 
 import argparse
 import datetime
+import json
 import os
 import re
 import sys
@@ -24,11 +27,15 @@ def fail(msg):
     sys.exit(1)
 
 
+def has_groups(m):
+    return m is not None and len(m.groups()) > 0
+
+
 def extract_header(line):
     header = None
     m = re.match(header_re, line)
 
-    if m is not None and len(m.groups()) > 0:
+    if has_groups(m):
         header = m.group('header').split()
 
     return header
@@ -38,13 +45,22 @@ def extract_date(line):
     date = None
     m = re.match(date_re, line)
 
-    if m is not None and len(m.groups()) > 0:
+    if has_groups(m):
         date = datetime.datetime.strptime(m.group('date'), '%m/%d/%Y %I:%M %p')
 
     return date
 
 
 def print_document_detail(invoice):
+    document = {
+        "metadata": None,
+        "page_count": 0,
+        "items": [],
+    }
+
+    document['metadata'] = invoice.metadata
+    document['page_count'] = len(invoice.pages)
+
     print(f'Document info: {invoice.metadata}')
     print(f'Pages: {invoice.pages}')
     print(f'Page count: {len(invoice.pages)}')
@@ -56,17 +72,26 @@ def print_document_detail(invoice):
         print(f'Page {pid + 1}:')
 
         lines = page.extract_text().split('\n')
+        items = []
 
-        for line in lines:
+        for line in lines
             date = extract_date(line)
             header = extract_header(line)
+            item = {}
 
             if date is not None:
+                items['date'] = date
                 print(f'  Date: {date.strftime("%m/%d/%Y %I:%M %p")}')
             elif header is not None:
+                item['header'] = header
                 print(f'  Header: {header}')
             else:
+                items['item'] = line
                 print(f'  Line: {line}')
+
+            items.append(item)
+            
+        document['items'].append(items)
 
 
 def parse_document(path, outfile):
