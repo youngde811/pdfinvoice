@@ -54,9 +54,9 @@ def extract_date(line):
 def parse_document_detail(invoice):
     meta = invoice.metadata
     document = {
-        "header": 'None',
-        "order_date": 'None',
-        "items": [],
+        'header': [],
+        'order_date': 'None',
+        'items': [],
     }
 
     document['page_count'] = len(invoice.pages)
@@ -67,6 +67,7 @@ def parse_document_detail(invoice):
     document['subject'] = meta.subject
     document['pages'] = len(invoice.pages)
     document['fields'] = str(invoice.get_fields())
+    document['rawtext'] = [page.extract_text() for page in invoice.pages]
 
     print(json.dumps(document, indent=4))
     
@@ -77,6 +78,8 @@ def parse_document_detail(invoice):
 
         lines = page.extract_text().split('\n')
 
+        document['lines'] = page.extract_text()
+        
         for line in lines:
             date = extract_date(line)
             header = extract_header(line)
@@ -101,7 +104,7 @@ def parse_document_detail(invoice):
     return document
 
 
-def parse_document(path, outfile):
+def parse_document(path, outfile, dump=False):
     doc = None
     
     with open(path, 'rb') as strm:
@@ -109,7 +112,8 @@ def parse_document(path, outfile):
 
         doc = parse_document_detail(invoice)
 
-    # print(json.dumps(doc, indent=4))
+    if dump:
+        print(json.dumps(doc, indent=4))
 
 
 def open_invoice(path, remove_any=False):
@@ -145,13 +149,14 @@ def main():
     ap = argparse.ArgumentParser(prog=progname, description=desc)
 
     ap.add_argument('invoice', type=argparse.FileType('r'), help='the PDF invoice file to read')
+    ap.add_argument('-d', '--dump', dest='dump', action='store_true', default=False, help='dump the JSON document to stdout')
     ap.add_argument('-o', '--outfile', dest='outfile', metavar='OUTFILE', type=str, default=None, help='write the CSV document to OUTFILE')
     ap.add_argument('-r', '--remove', dest='remove', default=False, action='store_true', help='first remove any existing invoice document at the same path')
 
     args = ap.parse_args()
     outfile = sys.stdout if args.outfile is None else open_invoice(Path(args.outfile), remove_any=args.remove)
 
-    parse_document(args.invoice.name, outfile)
+    parse_document(args.invoice.name, outfile, dump=args.dump)
 
     sys.exit(0)
 
