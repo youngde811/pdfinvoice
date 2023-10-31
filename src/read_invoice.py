@@ -52,27 +52,23 @@ def extract_date(line):
 
 
 def parse_document_detail(invoice):
+    meta = invoice.metadata
     document = {
-        "metadata": None,
-        "page_count": 0,
-        "header": None,
-        "order_date": None,
+        "header": 'None',
+        "order_date": 'None',
         "items": [],
     }
 
-    document['metadata'] = str(invoice.metadata)
     document['page_count'] = len(invoice.pages)
+    document['author'] = meta.author
+    document['creator'] = meta.creator
+    document['creation_date'] = meta.creation_date_raw
+    document['title'] = meta.title
+    document['subject'] = meta.subject
+    document['pages'] = len(invoice.pages)
+    document['fields'] = str(invoice.get_fields())
 
-    print(f'Author       : {invoice.metadata.author}')
-    print(f'Creator      : {invoice.metadata.creator}')
-    print(f'Creation date: {invoice.metadata.creation_date_raw}')
-    print(f'Title        : {invoice.metadata.title}')
-    print(f'Subject      : {invoice.metadata.subject}')
-    print(f'Page count   : {len(invoice.pages)}')
-    print(f'Fields       : {invoice.get_fields()}')
-    print()
-
-    items = []
+    print(json.dumps(document, indent=4))
     
     for pid in range(len(invoice.pages)):
         page = invoice.pages[pid]
