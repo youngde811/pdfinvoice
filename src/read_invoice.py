@@ -51,20 +51,25 @@ def extract_date(line):
     return date
 
 
-def print_document_detail(invoice):
+def parse_document_detail(invoice):
     document = {
         "metadata": None,
         "page_count": 0,
         "header": None,
+        "order_date": None,
         "items": [],
     }
 
     document['metadata'] = str(invoice.metadata)
     document['page_count'] = len(invoice.pages)
 
-    print(f'Document info: {invoice.metadata}')
-    print(f'Pages: {invoice.pages}')
-    print(f'Page count: {len(invoice.pages)}')
+    print(f'Author       : {invoice.metadata.author}')
+    print(f'Creator      : {invoice.metadata.creator}')
+    print(f'Creation date: {invoice.metadata.creation_date_raw}')
+    print(f'Title        : {invoice.metadata.title}')
+    print(f'Subject      : {invoice.metadata.subject}')
+    print(f'Page count   : {len(invoice.pages)}')
+    print(f'Fields       : {invoice.get_fields()}')
     print()
 
     items = []
@@ -79,10 +84,14 @@ def print_document_detail(invoice):
         for line in lines:
             date = extract_date(line)
             header = extract_header(line)
-            item = {}
+            item = {
+                "count": 1,
+                "unit_price": 1.00,
+                "total": 1.00,
+            }
 
             if date is not None:
-                item['date'] = date
+                document['order_date'] = date.strftime("%m/%d/%Y %I:%M %p")
                 print(f'  Date: {date.strftime("%m/%d/%Y %I:%M %p")}')
             elif header is not None:
                 document['header'] = header
@@ -91,18 +100,20 @@ def print_document_detail(invoice):
                 item['item'] = line
                 print(f'  Line: {line}')
 
-            items.append(item)
-            
-    document['items'].append(items)
+            document['items'].append(item)
 
     return document
 
 
 def parse_document(path, outfile):
+    doc = None
+    
     with open(path, 'rb') as strm:
         invoice = PdfReader(strm)
 
-        print_document_detail(invoice)
+        doc = parse_document_detail(invoice)
+
+    # print(json.dumps(doc, indent=4))
 
 
 def open_invoice(path, remove_any=False):
