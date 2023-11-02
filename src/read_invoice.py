@@ -20,7 +20,8 @@ progname = os.path.basename(sys.argv[0])
 
 date_re = re.compile(r'(?P<date>\d{1,2}?/\d{1,2}?/\d{4}?\s+\d{1,2}:\d{1,2}\s+(AM|PM)).*')
 header_re = re.compile(r'(?P<header>Item\s+Description\s+Color\s+Size\s+Pieces\s+Price\s+Total).*')
-line_item_re = re.compile(r'(?P<id>\d{8}?)\w*(?P<desc>.+?)\\n+')
+line_item_start_re = re.compile(r'(?P<id>\d{8}?)\s+')
+line_item_re = re.compile(r'(?P<id>\d{8}?)\s+(?P<desc>.+)\s+(?P<color>.+)(?P<size>[S,M,L,XL,2XL])\s+(?P<count>\d+)\s+(?P<cost>[0-9.]+)')
 
 
 def fail(msg):
@@ -54,8 +55,22 @@ def extract_date(line):
 
 
 def extract_line_item(src):
-    pass
+    line = {}
 
+    m = re.match(line_item_re, src)
+
+    if has_groups(m):
+        if len(m.groups()) == 6:
+            for field in ('id', 'desc', 'color', 'size', 'count', 'cost'):
+                line[field] = m.group(field)
+
+    return line
+
+
+def line_item_start(src):
+    m = re.match(line_item_start_re, src)
+
+    return has_groups(m)
 
 def parse_document_detail(invoice):
     meta = invoice.metadata
@@ -73,39 +88,29 @@ def parse_document_detail(invoice):
     document['subject'] = meta.subject
     document['pages'] = len(invoice.pages)
     document['fields'] = str(invoice.get_fields())
-    document['rawtext'] = [page.extract_text()for page in invoice.pages]
-
-    print(json.dumps(document, indent=4))
 
     for pid in range(len(invoice.pages)):
         page = invoice.pages[pid]
 
-        print(f'Page {pid + 1}:')
-
         lines = page.extract_text().split('\n')
 
-        document['lines'] = page.extract_text()
+        for i in range(len(lines)):
+            line = lines[i]
 
-        for line in lines:
             date = extract_date(line)
             header = extract_header(line)
-            item = {
-                "count": 1,
-                "unit_price": 1.00,
-                "total": 1.00,
-            }
+            item_start = line_item_start(line)
 
             if date is not None:
                 document['order_date'] = date.strftime("%m/%d/%Y %I:%M %p")
-                print(f'  Date: {date.strftime("%m/%d/%Y %I:%M %p")}')
             elif header is not None:
                 document['header'] = header
-                print(f'  Header: {header}')
-            else:
-                item['item'] = line
-                print(f'  Line: {line}')
+            elif item_start:
+                i += 1
+                
+                line_item = extract_line_item(line + lines[i])
 
-            document['items'].append(item)
+                document['items'].append(line_item)
 
     return document
 
