@@ -19,7 +19,7 @@ from PyPDF2 import PdfReader
 progname = os.path.basename(sys.argv[0])
 
 date_re = re.compile(r'(?P<date>\d{1,2}?/\d{1,2}?/\d{4}?\s+\d{1,2}:\d{1,2}\s+(AM|PM)).*')
-header_re = re.compile(r'(?P<header>Item\s+Description\s+Color\s+Size\s+Pieces\s+Price\s+Total).*')
+header_re = re.compile(r'(?P<header>Item\s+Description\s+Color\s+Size\s+Pieces\s+Price)\s+.*')
 line_item_start_re = re.compile(r'(?P<id>\d{8}?)\s+')
 line_item_re = re.compile(r'(?P<id>\d{8}?)\s+(?P<desc>.+)\s+(?P<color>.+)(?P<size>[S,M,L,XL,2XL])\s+(?P<count>\d+)\s+(?P<cost>[0-9.]+)')
 
@@ -87,7 +87,6 @@ def parse_document_detail(invoice):
     document['title'] = meta.title
     document['subject'] = meta.subject
     document['pages'] = len(invoice.pages)
-    document['fields'] = str(invoice.get_fields())
 
     for pid in range(len(invoice.pages)):
         page = invoice.pages[pid]
@@ -110,7 +109,8 @@ def parse_document_detail(invoice):
                 
                 line_item = extract_line_item(line + lines[i])
 
-                document['items'].append(line_item)
+                if line_item:
+                    document['items'].append(line_item)
 
     return document
 
@@ -124,7 +124,7 @@ def parse_document(path, outfile, dump=False):
         doc = parse_document_detail(invoice)
 
     if dump:
-        print(json.dumps(doc, indent=4))
+        print(json.dumps(doc, indent=4, sort_keys=True))
 
 
 def open_invoice(path, remove_any=False):
