@@ -20,6 +20,10 @@ progname = os.path.basename(sys.argv[0])
 
 date_re = re.compile(r'(?P<date>\d{1,2}?/\d{1,2}?/\d{4}?\s+\d{1,2}:\d{1,2}\s+(AM|PM)).*')
 header_re = re.compile(r'(?P<header>Item\s+Description\s+Color\s+Size\s+Pieces\s+Price)\s+.*')
+
+# Unfortunately, line items in these PDF documents are split by a newline after the description, so we
+# use two regular expressions to extract the pieces we want.
+
 line_item_start_re = re.compile(r'(?P<id>\d{8}?)\s+')
 line_item_re = re.compile(r'(?P<id>\d{8}?)\s+(?P<desc>.+)\s+(?P<color>.+)(?P<size>[S,M,L,XL,2XL])\s+(?P<count>\d+)\s+(?P<cost>[0-9.]+)')
 
