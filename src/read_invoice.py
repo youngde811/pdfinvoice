@@ -11,6 +11,7 @@ import json
 import os
 import re
 import sys
+import unicodedata
 
 from pathlib import Path
 from PyPDF2 import PdfReader
@@ -19,6 +20,7 @@ progname = os.path.basename(sys.argv[0])
 
 date_re = re.compile(r'(?P<date>\d{1,2}?/\d{1,2}?/\d{4}?\s+\d{1,2}:\d{1,2}\s+(AM|PM)).*')
 header_re = re.compile(r'(?P<header>Item\s+Description\s+Color\s+Size\s+Pieces\s+Price\s+Total).*')
+line_item_re = re.compile(r'(?P<id>\d{8}?)\w*(?P<desc>.+?)\\n+')
 
 
 def fail(msg):
@@ -51,6 +53,10 @@ def extract_date(line):
     return date
 
 
+def extract_line_item(src):
+    pass
+
+
 def parse_document_detail(invoice):
     meta = invoice.metadata
     document = {
@@ -67,10 +73,10 @@ def parse_document_detail(invoice):
     document['subject'] = meta.subject
     document['pages'] = len(invoice.pages)
     document['fields'] = str(invoice.get_fields())
-    document['rawtext'] = [page.extract_text() for page in invoice.pages]
+    document['rawtext'] = [page.extract_text()for page in invoice.pages]
 
     print(json.dumps(document, indent=4))
-    
+
     for pid in range(len(invoice.pages)):
         page = invoice.pages[pid]
 
@@ -79,7 +85,7 @@ def parse_document_detail(invoice):
         lines = page.extract_text().split('\n')
 
         document['lines'] = page.extract_text()
-        
+
         for line in lines:
             date = extract_date(line)
             header = extract_header(line)
