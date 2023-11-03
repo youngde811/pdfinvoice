@@ -65,13 +65,13 @@ def normalize(data):
     return unicodedata.normalize('NFKD', data).encode('ascii', 'ignore').decode('utf-8')
 
 
-def extract_line_item(src):
+def extract_line_item(src, ncolumns):
     line = {}
 
     m = re.match(line_item_re, src)
 
     if has_groups(m):
-        if len(m.groups()) == 6:
+        if len(m.groups()) == ncolumns:
             for field in ('id', 'style', 'color', 'size', 'quantity', 'cost'):
                 line[field] = normalize(m.group(field))
 
@@ -92,6 +92,7 @@ def parse_document_detail(invoice):
     }
 
     document['page_count'] = len(invoice.pages)
+    ncolumns = len(document['header'])
 
     for pid in range(len(invoice.pages)):
         page = invoice.pages[pid]
@@ -109,7 +110,7 @@ def parse_document_detail(invoice):
             elif item_start:
                 i += 1
 
-                line_item = extract_line_item(line + lines[i])
+                line_item = extract_line_item(line + lines[i], ncolumns)
 
                 if line_item:
                     document['items'].append(line_item)
