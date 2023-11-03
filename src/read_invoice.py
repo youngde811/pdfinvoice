@@ -117,19 +117,18 @@ def parse_document_detail(invoice):
     return document
 
 
-def write_csv(doc, dest):
+def write_csv(doc, csvfile):
     daterow = True
 
-    with open(dest, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile, dialect='excel', quoting=csv.QUOTE_MINIMAL)
+    writer = csv.writer(csvfile, dialect='excel', quoting=csv.QUOTE_MINIMAL)
 
-        writer.writerow(doc['header'])
+    writer.writerow(doc['header'])
 
-        for item in doc['items']:
-            row = [doc['order_date']] if daterow else []
-            row += [doc['style'], doc['color'], doc['size'], doc['quantity'], doc['cost']]
+    for item in doc['items']:
+        row = [doc['order_date']] if daterow else []
+        row += [doc['style'], doc['color'], doc['size'], doc['quantity'], doc['cost']]
 
-            writer.writerow(row)
+        writer.writerow(row)
 
 
 def parse_document(path, outfile, format='json'):
@@ -146,7 +145,7 @@ def parse_document(path, outfile, format='json'):
         write_csv(doc, outfile)
 
 
-def open_invoice(path, remove_any=False):
+def open_invoice(path, remove_any=False, format='json'):
     pathname = path.as_posix()
 
     if path.is_dir():
@@ -161,11 +160,19 @@ def open_invoice(path, remove_any=False):
     fp = None
 
     try:
-        fp = open(pathname, 'w', encoding='utf-8')
+        if format == 'json':
+            fp = open(pathname, 'w', encoding='utf-8')
+        else:
+            fp = open(pathname, 'w', newline='')
     except OSError as e:
         fail(f'failed to open invoice file: {pathname}: reason: {e.strerror}')
 
     return fp
+
+
+def cleanup(outfile):
+    if outfile != sys.stdout:
+        outfile.close()
 
 
 def main():
@@ -185,9 +192,10 @@ def main():
     ap.add_argument('-r', '--remove', dest='remove', default=False, action='store_true', help='first remove any existing invoice document at the same path')
 
     args = ap.parse_args()
-    outfile = sys.stdout if args.outfile is None else open_invoice(Path(args.outfile), remove_any=args.remove)
+    outfile = sys.stdout if args.outfile is None else open_invoice(Path(args.outfile), remove_any=args.remove, format=args.format)
 
     parse_document(args.invoice.name, outfile, format=args.format)
+    cleanup(outfile)
 
     sys.exit(0)
 
