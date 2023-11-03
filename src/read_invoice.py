@@ -25,7 +25,7 @@ header_re = re.compile(r'(?P<header>Item\s+Description\s+Color\s+Size\s+Pieces\s
 # use two regular expressions to extract the pieces we want.
 
 line_item_start_re = re.compile(r'(?P<id>\d{8}?)\s+')
-line_item_re = re.compile(r'(?P<id>\d{8}?)\s+(?P<desc>.+)\s+(?P<color>.+)(?P<size>[S,M,L,XL,2XL])\s+(?P<count>\d+)\s+(?P<cost>[0-9.]+)')
+line_item_re = re.compile(r'(?P<id>\d{8}?)\s+(?P<style>.+)\s+(?P<color>.+)(?P<size>[S,M,L,XL,2XL])\s+(?P<quantity>\d+)\s+(?P<cost>[0-9.]+)')
 
 
 def fail(msg):
@@ -65,7 +65,7 @@ def extract_line_item(src):
 
     if has_groups(m):
         if len(m.groups()) == 6:
-            for field in ('id', 'desc', 'color', 'size', 'count', 'cost'):
+            for field in ('id', 'style', 'color', 'size', 'quantity', 'cost'):
                 line[field] = m.group(field)
 
     return line
@@ -79,7 +79,7 @@ def line_item_start(src):
 
 def parse_document_detail(invoice):
     document = {
-        'header': [],
+        'header': ['DATE', 'STYLE', 'COLOR', 'SIZE', 'QUANTITY', 'COST'],
         'order_date': 'None',
         'items': [],
     }
@@ -95,13 +95,10 @@ def parse_document_detail(invoice):
             line = lines[i]
 
             date = extract_date(line)
-            header = extract_header(line)
             item_start = line_item_start(line)
 
             if date is not None:
                 document['order_date'] = date.strftime("%m/%d/%Y %I:%M %p")
-            elif header is not None:
-                document['header'] = header
             elif item_start:
                 i += 1
 
@@ -113,8 +110,19 @@ def parse_document_detail(invoice):
     return document
 
 
-def create_csv(doc):
-    pass
+def write_csv(doc, dest):
+    daterow = True
+
+    with open(dest, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, dialect='excel', quoting=csv.QUOTE_MINIMAL)
+
+        writer.writerow(doc['header'])
+
+        for item in doc['items']:
+            row = [doc['order_date']] if daterow else []
+            row += [doc['style'], doc['color'], doc['size'], doc['size'], doc['quantity'], doc['cost']]
+
+            writer.writerow(row)
 
 
 def parse_document(path, outfile, format='json'):
@@ -126,9 +134,9 @@ def parse_document(path, outfile, format='json'):
         doc = parse_document_detail(invoice)
 
     if format == 'json':
-        print(json.dumps(doc, indent=4, sort_keys=True))
+        print(json.dumps(doc, indent=4, sort_keys=True), file=outfile)
     elif format == 'csv':
-        print(create_csv(doc))
+        print(write_csv(doc), outfile)
 
 
 def open_invoice(path, remove_any=False):
