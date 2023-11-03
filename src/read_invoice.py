@@ -126,7 +126,6 @@ def write_csv(doc, csvfile):
         item = doc['items'][i]
 
         row = [doc['order_date']] if i == 0 else [' ' * len(doc['order_date'])]
-
         row += [item['style'], item['color'], item['size'], item['quantity'], item['cost']]
 
         writer.writerow(row)
