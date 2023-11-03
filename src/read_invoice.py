@@ -12,6 +12,7 @@ import json
 import os
 import re
 import sys
+import unicodedata
 
 from pathlib import Path
 from PyPDF2 import PdfReader
@@ -66,7 +67,7 @@ def extract_line_item(src):
     if has_groups(m):
         if len(m.groups()) == 6:
             for field in ('id', 'style', 'color', 'size', 'quantity', 'cost'):
-                line[field] = m.group(field)
+                line[field] = unicodedata.normalize('NFKD', m.group(field)).encode('ascii', 'ignore').decode('utf-8')
 
     return line
 
@@ -120,7 +121,7 @@ def write_csv(doc, dest):
 
         for item in doc['items']:
             row = [doc['order_date']] if daterow else []
-            row += [doc['style'], doc['color'], doc['size'], doc['size'], doc['quantity'], doc['cost']]
+            row += [doc['style'], doc['color'], doc['size'], doc['quantity'], doc['cost']]
 
             writer.writerow(row)
 
@@ -136,7 +137,7 @@ def parse_document(path, outfile, format='json'):
     if format == 'json':
         print(json.dumps(doc, indent=4, sort_keys=True), file=outfile)
     elif format == 'csv':
-        print(write_csv(doc), outfile)
+        write_csv(doc, outfile)
 
 
 def open_invoice(path, remove_any=False):
