@@ -6,12 +6,12 @@
 # annoying.
 
 import argparse
+import csv
 import datetime
 import json
 import os
 import re
 import sys
-import unicodedata
 
 from pathlib import Path
 from PyPDF2 import PdfReader
@@ -76,8 +76,8 @@ def line_item_start(src):
 
     return has_groups(m)
 
+
 def parse_document_detail(invoice):
-    meta = invoice.metadata
     document = {
         'header': [],
         'order_date': 'None',
@@ -85,12 +85,6 @@ def parse_document_detail(invoice):
     }
 
     document['page_count'] = len(invoice.pages)
-    document['author'] = meta.author
-    document['creator'] = meta.creator
-    document['creation_date'] = meta.creation_date_raw
-    document['title'] = meta.title
-    document['subject'] = meta.subject
-    document['pages'] = len(invoice.pages)
 
     for pid in range(len(invoice.pages)):
         page = invoice.pages[pid]
@@ -110,7 +104,7 @@ def parse_document_detail(invoice):
                 document['header'] = header
             elif item_start:
                 i += 1
-                
+
                 line_item = extract_line_item(line + lines[i])
 
                 if line_item:
@@ -119,16 +113,22 @@ def parse_document_detail(invoice):
     return document
 
 
-def parse_document(path, outfile, dump=False):
+def create_csv(doc):
+    pass
+
+
+def parse_document(path, outfile, format='json'):
     doc = None
-    
+
     with open(path, 'rb') as strm:
         invoice = PdfReader(strm)
 
         doc = parse_document_detail(invoice)
 
-    if dump:
+    if format == 'json':
         print(json.dumps(doc, indent=4, sort_keys=True))
+    elif format == 'csv':
+        print(create_csv(doc))
 
 
 def open_invoice(path, remove_any=False):
@@ -164,14 +164,15 @@ def main():
     ap = argparse.ArgumentParser(prog=progname, description=desc)
 
     ap.add_argument('invoice', type=argparse.FileType('r'), help='the PDF invoice file to read')
-    ap.add_argument('-d', '--dump', dest='dump', action='store_true', default=False, help='dump the JSON document to stdout')
+    ap.add_argument('-f', '--format', dest='format', metavar='FORMAT', choices=['csv', 'json'], default='json',
+                    help='output the document in FORMAT (choices: %(choices)s) default: %(default)s)')
     ap.add_argument('-o', '--outfile', dest='outfile', metavar='OUTFILE', type=str, default=None, help='write the CSV document to OUTFILE')
     ap.add_argument('-r', '--remove', dest='remove', default=False, action='store_true', help='first remove any existing invoice document at the same path')
 
     args = ap.parse_args()
     outfile = sys.stdout if args.outfile is None else open_invoice(Path(args.outfile), remove_any=args.remove)
 
-    parse_document(args.invoice.name, outfile, dump=args.dump)
+    parse_document(args.invoice.name, outfile, format=args.format)
 
     sys.exit(0)
 
