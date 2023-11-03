@@ -59,6 +59,12 @@ def extract_date(line):
     return date
 
 
+# Very nice solution from: https://stackoverflow.com/questions/37045192/remove-unicode-characters-python
+
+def normalize(data):
+    return unicodedata.normalize('NFKD', data).encode('ascii', 'ignore').decode('utf-8')
+
+
 def extract_line_item(src):
     line = {}
 
@@ -67,7 +73,7 @@ def extract_line_item(src):
     if has_groups(m):
         if len(m.groups()) == 6:
             for field in ('id', 'style', 'color', 'size', 'quantity', 'cost'):
-                line[field] = unicodedata.normalize('NFKD', m.group(field)).encode('ascii', 'ignore').decode('utf-8')
+                line[field] = normalize(m.group(field))
 
     return line
 
