@@ -118,15 +118,12 @@ def parse_document_detail(invoice):
 
 
 def write_csv(doc, csvfile):
-    daterow = True
-
     writer = csv.writer(csvfile, dialect='excel', quoting=csv.QUOTE_MINIMAL)
 
     writer.writerow(doc['header'])
 
     for item in doc['items']:
-        row = [doc['order_date']] if daterow else []
-        row += [doc['style'], doc['color'], doc['size'], doc['quantity'], doc['cost']]
+        row = [doc['order_date'], item['style'], item['color'], item['size'], item['quantity'], item['cost']]
 
         writer.writerow(row)
 
