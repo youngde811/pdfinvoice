@@ -25,9 +25,8 @@ header_re = re.compile(r'(?P<header>Item\s+Description\s+Color\s+Size\s+Pieces\s
 # Unfortunately, line items in these PDF documents are split by a newline after the description, so we
 # use two regular expressions to extract the pieces we want.
 
-line_item_start_re = re.compile(r'(?P<id>\d{8}?)\s+')
-line_item_re = re.compile(r'(?P<id>\d{8}?)\s+(?P<style>.+)\s+(?P<color>.+)(?P<size>[S,M,L,XL,2XL])\s+(?P<quantity>\d+)\s+(?P<cost>[0-9.]+)')
-
+line_item_start_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+')
+line_item_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+(?P<style>.+)\s+(?P<color>.+?)(?P<size>[S,M,L,XL,2XL])\s+(?:[\w,-])*?(?P<quantity>\d+)\s+(?P<cost>[0-9.]+)')
 
 def fail(msg):
     print(f'{progname}: fatal error: {msg}')
@@ -100,7 +99,7 @@ def parse_document_detail(invoice):
         lines = page.extract_text().split('\n')
 
         for i in range(len(lines)):
-            line = lines[i]
+            line = normalize(lines[i])
 
             date = extract_date(line)
             item_start = line_item_start(line)
@@ -108,9 +107,12 @@ def parse_document_detail(invoice):
             if date is not None:
                 document['order_date'] = date.strftime("%m/%d/%Y %I:%M %p")
             elif item_start:
-                i += 1
+                if lines[i + 1].startswith(' '):
+                    i += 1
 
-                line_item = extract_line_item(line + lines[i], ncolumns)
+                    line += lines[i]
+
+                line_item = extract_line_item(line, ncolumns)
 
                 if line_item:
                     document['items'].append(line_item)
