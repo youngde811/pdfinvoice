@@ -112,7 +112,6 @@ def parse_document_detail(invoice):
 
                     line += lines[i]
 
-                print(line)
                 line_item = extract_line_item(line, ncolumns)
 
                 if line_item:
