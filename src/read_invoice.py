@@ -25,9 +25,9 @@ header_re = re.compile(r'(?P<header>Item\s+Description\s+Color\s+Size\s+Pieces\s
 # Unfortunately, line items in these PDF documents are split by a newline after the description, so we
 # use two regular expressions to extract the pieces we want.
 
-line_item_start_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+')
-line_item_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+(?P<style>.+)\s+(?P<color>.+?)(?P<size>[S,M,L,XL,2XL])\s+(?:[\w,-])*?(?P<quantity>\d+)\s+(?P<cost>[0-9.]+)')
-gorpy_line_item_re = re.compile(r'(?:\d+?\s+)(?P<id>\d{8}?)(?P<style>[\w,\s,-]+\d{4})\s+(?P<color>[\w\s]+)\s+(?P<size>\w+)\s+(?:[\w-]+)\s+(?P<quantity>\d+)')
+lineitem_start_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+')
+lineitem_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+(?P<style>.+)\s+(?P<color>.+?)(?P<size>[S,M,L,XL,2XL])\s+(?:[\w,-])*?(?P<quantity>\d+)\s+(?P<cost>[0-9.]+)')
+gorpy_lineitem_re = re.compile(r'(?:\d+?\s+)(?P<id>\d{8}?)\s+(?P<style>[\w\s\-]+[\/]*)\s+(?P<color>[\w\s]+)\s+(?P<size>\w+)\s+(?:[\w-]+)\s+(?P<quantity>\d+)')
 
 
 def fail(msg):
@@ -66,20 +66,32 @@ def normalize(data):
     return unicodedata.normalize('NFKD', data).encode('ascii', 'ignore').decode('utf-8')
 
 
-def extract_line_item(src, ncolumns, regex=line_item_re):
+def extract_line_item(src):
     line = {}
 
-    m = re.match(regex, src)
+    m = re.match(lineitem_re, src)
 
     if has_groups(m):
         for field in ('id', 'style', 'color', 'size', 'quantity', 'cost'):
-            line[field] = normalize(m.group(field)) if field in m.groupdict() else '0.0'
+            line[field] = normalize(m.group(field))
 
     return line
 
 
-def line_item_start(src):
-    m = re.match(line_item_start_re, src)
+def extract_gorpy_line_item(src):
+    line = {}
+
+    m = re.match(gorpy_lineitem_re, src)
+
+    if has_groups(m):
+        for field in ('id', 'style', 'color', 'size', 'quantity', 'cost'):
+            line[field] = normalize(m.group(field)) if field in m.groupdict() else 'Nil'
+
+    return line
+
+
+def lineitem_start(src):
+    m = re.match(lineitem_start_re, src)
 
     return has_groups(m)
 
@@ -103,7 +115,7 @@ def parse_document_detail(invoice):
             line = normalize(lines[i])
 
             date = extract_date(line)
-            item_start = line_item_start(line)
+            item_start = lineitem_start(line)
 
             if date is not None:
                 document['order_date'] = date.strftime("%m/%d/%Y %I:%M %p")
@@ -113,10 +125,10 @@ def parse_document_detail(invoice):
 
                     line += lines[i]
 
-                line_item = extract_line_item(line, ncolumns, regex=gorpy_line_item_re)
+                line_item = extract_line_item(line)
 
                 if not line_item:
-                    line_item = extract_line_item(line, ncolumns)
+                    line_item = extract_line_item(line)
 
                 if line_item:
                     document['items'].append(line_item)
