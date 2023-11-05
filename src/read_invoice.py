@@ -27,6 +27,8 @@ header_re = re.compile(r'(?P<header>Item\s+Description\s+Color\s+Size\s+Pieces\s
 
 line_item_start_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+')
 line_item_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+(?P<style>.+)\s+(?P<color>.+?)(?P<size>[S,M,L,XL,2XL])\s+(?:[\w,-])*?(?P<quantity>\d+)\s+(?P<cost>[0-9.]+)')
+gorpy_line_item_re = re.compile(r'(?:\d+?\s+)(?P<id>\d{8}?)(?P<style>[\w,\s,-]+\d{4})\s+(?P<color>[\w\s]+)\s+(?P<size>\w+)\s+(?:[\w-]+)\s+(?P<quantity>\d+)')
+
 
 def fail(msg):
     print(f'{progname}: fatal error: {msg}')
@@ -64,15 +66,14 @@ def normalize(data):
     return unicodedata.normalize('NFKD', data).encode('ascii', 'ignore').decode('utf-8')
 
 
-def extract_line_item(src, ncolumns):
+def extract_line_item(src, ncolumns, regex=line_item_re):
     line = {}
 
-    m = re.match(line_item_re, src)
+    m = re.match(regex, src)
 
     if has_groups(m):
-        if len(m.groups()) == ncolumns:
-            for field in ('id', 'style', 'color', 'size', 'quantity', 'cost'):
-                line[field] = normalize(m.group(field))
+        for field in ('id', 'style', 'color', 'size', 'quantity', 'cost'):
+            line[field] = normalize(m.group(field)) if field in m.groupdict() else '0.0'
 
     return line
 
@@ -112,7 +113,10 @@ def parse_document_detail(invoice):
 
                     line += lines[i]
 
-                line_item = extract_line_item(line, ncolumns)
+                line_item = extract_line_item(line, ncolumns, regex=gorpy_line_item_re)
+
+                if not line_item:
+                    line_item = extract_line_item(line, ncolumns)
 
                 if line_item:
                     document['items'].append(line_item)
