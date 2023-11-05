@@ -27,7 +27,7 @@ header_re = re.compile(r'(?P<header>Item\s+Description\s+Color\s+Size\s+Pieces\s
 
 lineitem_start_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+')
 lineitem_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+(?P<style>.+)\s+(?P<color>.+?)(?P<size>[S,M,L,XL,2XL])\s+(?:[\w,-])*?(?P<quantity>\d+)\s+(?P<cost>[0-9.]+)')
-gorpy_lineitem_re = re.compile(r'(?:\d+?\s+)(?P<id>\d{8}?)\s+(?P<style>[\w\s\-]+[\/]*)\s+(?P<color>[\w\s]+)\s+(?P<size>\w+)\s+(?:[\w-]+)\s+(?P<quantity>\d+)')
+gorpy_lineitem_re = re.compile(r'(?:\d+?\s+)(?P<id>\d{8}?)\s+(?P<style>[\w\s\-]+[\d.]*[\/]*)\s+(?P<color>[\w\s]+)\s+(?P<size>\w+)\s+(?:[\w-]+)\s+(?P<quantity>\d+)')
 
 
 def fail(msg):
