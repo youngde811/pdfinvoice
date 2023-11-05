@@ -85,7 +85,7 @@ def extract_gorpy_line_item(src):
 
     if has_groups(m):
         for field in ('id', 'style', 'color', 'size', 'quantity', 'cost'):
-            line[field] = normalize(m.group(field)) if field in m.groupdict() else 'Nil'
+            line[field] = normalize(m.group(field)) if field in m.groupdict() else 'nil'
 
     return line
 
