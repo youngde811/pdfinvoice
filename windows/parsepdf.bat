@@ -48,7 +48,7 @@ echo Conversion to CSV completed.
 :continue
 set /p continue="Type [yes] when you are ready to go on: "
 
-if /i "%continue%" equ "Y" goto endscript
+if /i "%continue%" equ "yes" goto endscript
 goto continue
 
 :endscript
