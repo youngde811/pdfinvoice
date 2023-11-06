@@ -13,7 +13,7 @@ set rval=0
 
 :setpdf
 set /p pdffile="Your PDF document to read: %"
-if "%pdffile%"=="" goto setpdf
+if %pdffile%=="" goto setpdf
 
 pause
 
@@ -21,7 +21,7 @@ if not exist %pdffile% goto missingpdf
 
 :setcsv
 set /p csvpath="The CSV import file to write for Excel: "
-if "%csvpath%"=="" goto setcsv
+if %csvpath%=="" goto setcsv
 
 set parser=c:\pdfinvoice\src\read_invoice.py
 
