@@ -1,5 +1,5 @@
 
-rem @echo off
+@echo off
 
 rem -- This script is used to start our Python PDF invoice parser from a desktop shortcut.
 rem -- The parser is used to create a CSV file that may be imported in Excel. All file names
@@ -49,7 +49,7 @@ goto continue
 echo Conversion to CSV completed.
 
 :continue
-set /p continue="Type Y or N when you are ready to go on: "
+set /p continue="Type [yes] when you are ready to go on: "
 
 if /i "%continue%" equ "Y" goto endscript
 goto continue
