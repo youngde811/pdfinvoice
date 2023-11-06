@@ -25,7 +25,7 @@ echo %progname%: CSV created at: "%csvpath%"
 goto finish
 
 :missingpdf
-echo %progname%: no PDF at "%pdffile%"
+echo %progname%: no PDF document at "%pdffile%"
 rval=1
 
 goto finish
