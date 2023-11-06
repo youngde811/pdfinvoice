@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 # This Python program may be used to read a very particular type of PDF invoice, extract the necessary text,
 # and create a CSV file that may be imported into various spreadsheets. The parser here does not have to be

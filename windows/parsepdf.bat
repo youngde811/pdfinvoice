@@ -14,11 +14,11 @@ set rval=0
 set /p pdffile="Your PDF document to read: "
 set /p csvpath="The CSV import file to write for Excel: "
 
-if not exist "%pdffile%" goto missingpdf
+if not exist %pdffile% goto missingpdf
 
 set parser=c:\pdfinvoice\src\read_invoice.py
 
-python %parser% --document "%pdffile%" --outfile "%csvpath%" --format csv --remove
+python %parser% --document %pdffile% --outfile %csvpath% --format csv --remove
 
 if ERRORLEVEL 1 goto parsefailed
 
@@ -26,14 +26,14 @@ echo %progname%: CSV created at: "%csvpath%"
 goto finish
 
 :missingpdf
-echo %progname%: no PDF document at "%pdffile%"
-rval=1
+echo %progname%: no PDF document at %pdffile%
+set rval=1
 
 goto finish
 
 :parsefailed
-echo %progname%: failed to parse PDF "%pdffile%"
-rval=1
+echo %progname%: failed to parse PDF %pdffile%
+set rval=1
 
 goto finish
 
