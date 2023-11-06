@@ -27,7 +27,7 @@ header_re = re.compile(r'(?P<header>Item\s+Description\s+Color\s+Size\s+Pieces\s
 
 lineitem_start_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+')
 lineitem_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+(?P<style>.+)\s+(?P<color>.+?)(?P<size>[S,M,L,XL,2XL])\s+(?:[\w,-])*?(?P<quantity>\d+)\s+(?P<cost>[0-9.]+)')
-gorpy_lineitem_re = re.compile(r'(?:\d+?\s+)(?P<id>\d{8}?)\s+(?P<style>[\w\s\-]+[\d.]*[\/]*)\s+(?P<color>[\w\s]+)\s+(?P<size>\w+)\s+(?:[\w-]+)\s+(?P<quantity>\d+)')
+gorpy_lineitem_re = re.compile(r'(?:\d+?\s+)(?P<id>\d{8}?)\s+(?P<style>[^\d]+\d+[\s]*?[\w\/]*)\s+(?P<color>[\w\s]+)\s+(?P<size>\w+)\s+.*\s+(?P<quantity>\d+)')
 
 
 def fail(msg):
@@ -85,7 +85,7 @@ def extract_gorpy_line_item(src):
 
     if has_groups(m):
         for field in ('id', 'style', 'color', 'size', 'quantity', 'cost'):
-            line[field] = normalize(m.group(field)) if field in m.groupdict() else 'nil'
+            line[field] = normalize(m.group(field)) if field in m.groupdict() else '0'
 
     return line
 
@@ -125,7 +125,7 @@ def parse_document_detail(invoice):
 
                     line += lines[i]
 
-                line_item = extract_line_item(line)
+                line_item = extract_gorpy_line_item(line)
 
                 if not line_item:
                     line_item = extract_line_item(line)
