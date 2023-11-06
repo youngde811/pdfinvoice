@@ -6,7 +6,7 @@ rem -- The parser is used to create a CSV file that may be imported in Excel.
 
 setlocal
 
-set progname=parsepdf
+set progname=%~nx0
 
 set rval=0
 
