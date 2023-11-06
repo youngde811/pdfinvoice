@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# This script may be used to "disassemble" a PDF document into its component parts, printing
+# them to stdout. Useful for debugging purposes.
+
+readonly progname=$(basename $0)
+
+invoice_script='src/disassemble.py'
+
+usage() {
+    cat <<EOF
+Usage: $progname [OPTIONS] PATH
+
+This script may be used to "disassemble" a PDF document into its component parts, printing
+them to stdout. Useful for debugging purposes.
+
+Options:
+  -h    Show this message and exit.
+  -H    Show the options offered by the Python executable.
+
+Notes:
+  * PATH should be a readable PDF document, that gets passed to the
+    Python disassembler.
+EOF
+
+    exit 1
+}
+
+invoice_usage() {
+    python3 $invoice_script --help
+
+    exit 1
+}
+
+invoice_run() {
+    exec python3 $invoice_script "$@"
+
+    exit 1  # exec() should never return if successful
+}
+
+# --- main() ---
+
+# Normally I'd use getopts() here, but anything other than [-h, -H] should be passed through
+# to Python, so I've taken the simplistic approach.
+
+case "$1" in
+    -h) usage ;;
+    -H) invoice_usage ;;
+    *) invoice_run "$@" ;;
+esac
+
+exit 1  # control should never reach this point
+
+# -*- mode: shell-script; sh-shell: bash -*-
