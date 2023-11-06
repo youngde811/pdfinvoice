@@ -16,7 +16,7 @@ import readline
 import sys
 import unicodedata
 
-from pathlib import Path, PurePath
+from pathlib import Path
 from PyPDF2 import PdfReader
 
 progname = os.path.basename(sys.argv[0])
@@ -212,12 +212,12 @@ def gather_document_stuff():
     while len(docpath) == 0:
         docpath = input('Your PDF document to read: ')
 
-    docpath = PurePath(docpath)
+    docpath = Path(docpath)
 
     while len(csvpath) == 0:
         csvpath = input('The CSV import file for Excel: ')
 
-    csvpath = PurePath(csvpath)
+    csvpath = Path(csvpath)
 
     return docpath, csvpath
 
