@@ -171,7 +171,7 @@ def write_csv(doc, csvfile):
 def parse_document(path, outfile, format='json'):
     doc = None
 
-    with open(path, 'rb') as strm:
+    with path.open('rb') as strm:
         invoice = PdfReader(strm)
 
         doc = parse_document_detail(invoice)
@@ -250,12 +250,12 @@ def main():
     else:
         assert args.document is not None, f'{progname}: a PDF document is required without --interactive'
 
-        pdfdoc = args.document
+        pdfdoc = Path(args.document.name)
         outpath = sys.stdout if args.outfile is None else open_invoice(Path(args.csvpath), remove_any=args.remove, format=args.format)
 
     parse_document(pdfdoc, outpath, format=args.format)
     
-    cleanup(outfile)
+    cleanup(outpath)
 
     sys.exit(0)
 
