@@ -13,22 +13,26 @@ set rval=0
 set /p pdffile="Your PDF document to read: "
 set /p csvpath="The CSV import file to write for Excel: "
 
-if not exist %pdffile% goto missingpdf
+if not exist "%pdffile%" goto missingpdf
 
 python -d "%pdffile%" -o "%csvpath%" -f csv -r
 
 if ERRORLEVEL 1 goto parsefailed
 
-echo %progname%: CSV created at: %csvpath%
+echo %progname%: CSV created at: "%csvpath%"
 goto finish
 
 :missingpdf
-echo %progname%: no PDF at %pdffile%
+echo %progname%: no PDF at "%pdffile%"
 rval=1
 
+goto finish
+
 :parsefailed
-echo %progname%: failed to parse PDF %pdffile%
+echo %progname%: failed to parse PDF "%pdffile%"
 rval=1
+
+goto finish
 
 :finish
 endlocal
