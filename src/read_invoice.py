@@ -196,9 +196,9 @@ def open_invoice(path, remove_any=False, format='json'):
 
     try:
         if format == 'json':
-            fp = path.open(path, 'w', encoding='utf-8')
+            fp = path.open('w', encoding='utf-8')
         else:
-            fp = path.open(path, 'w', newline='')
+            fp = path.open('w', newline='')
     except OSError as e:
         fail(f'failed to open invoice file: {path}: reason: {e.strerror}')
 
@@ -251,7 +251,7 @@ def main():
         assert args.document is not None, f'{progname}: a PDF document is required without --interactive'
 
         pdfdoc = Path(args.document.name)
-        outpath = sys.stdout if args.outfile is None else open_invoice(Path(args.csvpath), remove_any=args.remove, format=args.format)
+        outpath = sys.stdout if args.outfile is None else open_invoice(Path(args.outfile), remove_any=args.remove, format=args.format)
 
     parse_document(pdfdoc, outpath, format=args.format)
     
