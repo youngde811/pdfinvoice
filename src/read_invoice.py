@@ -26,7 +26,7 @@ header_re = re.compile(r'(?P<header>Item\s+Description\s+Color\s+Size\s+Pieces\s
 # use two regular expressions to extract the pieces we want.
 
 lineitem_start_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+')
-lineitem_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+(?P<style>.+)\s+(?P<color>.+?)(?P<size>[S,M,L,XL,2XL])\s+(?:[\w,-])*?(?P<quantity>\d+)\s+(?P<cost>[0-9.]+)')
+lineitem_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+(?P<style>.+)\s+(?P<color>.+?)(?P<size>\w+)\s+(?:[\w,-])*?(?P<quantity>\d+)\s+(?P<cost>[0-9.]+)')
 gorpy_lineitem_re = re.compile(r'(?:\d+?\s+)(?P<id>\d{8}?)\s+(?P<style>[^\d]+\d+[\s]*?[\w\/]*)\s+(?P<color>[\w\s]+)\s+(?P<size>\w+)\s+.*\s+(?P<quantity>\d+)')
 
 
