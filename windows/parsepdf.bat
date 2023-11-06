@@ -15,7 +15,9 @@ set /p csvpath="The CSV import file to write for Excel: "
 
 if not exist "%pdffile%" goto missingpdf
 
-python -d "%pdffile%" -o "%csvpath%" -f csv -r
+set parser=c:\pdfinvoice\src\read_invoice.py
+
+python %parser% --document "%pdffile%" --outfile "%csvpath%" --format csv --remove
 
 if ERRORLEVEL 1 goto parsefailed
 
