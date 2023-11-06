@@ -12,7 +12,6 @@ import json
 import os
 import platform
 import re
-import readline
 import sys
 import unicodedata
 
