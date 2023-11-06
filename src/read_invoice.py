@@ -255,7 +255,7 @@ def main():
     if args.interactive:
         pdfdoc, csvpath = gather_document_stuff()
 
-        print(f'PDF: {pdfdoc}; CSV: {csvpath}')
+        print(f'PDF: {pdfdoc.parts}; CSV: {csvpath.parts}')
         sys.exit(1)
 
     parse_document(args.document.name, outfile, format=args.format)
