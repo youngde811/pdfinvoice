@@ -183,26 +183,24 @@ def parse_document(path, outfile, format='json'):
 
 
 def open_invoice(path, remove_any=False, format='json'):
-    pathname = path.as_posix()
-
     if path.is_dir():
-        fail(f'invoice path is a directory: {pathname}')
+        fail(f'output file is a directory: {path}')
 
     if path.exists():
         if remove_any:
             path.unlink()
         else:
-            fail(f'failed to create invoice: file exists: {pathname}')
+            fail(f'unable to remove output file: {path}')
 
     fp = None
 
     try:
         if format == 'json':
-            fp = open(pathname, 'w', encoding='utf-8')
+            fp = path.open(path, 'w', encoding='utf-8')
         else:
-            fp = open(pathname, 'w', newline='')
+            fp = path.open(path, 'w', newline='')
     except OSError as e:
-        fail(f'failed to open invoice file: {pathname}: reason: {e.strerror}')
+        fail(f'failed to open invoice file: {path}: reason: {e.strerror}')
 
     return fp
 
@@ -247,18 +245,16 @@ def main():
 
     args = ap.parse_args()
 
-    if not args.interactive:
-        assert args.document is not None, f'{progname}: a PDF document is required without --interactive'
-        
-    outfile = sys.stdout if args.outfile is None else open_invoice(Path(args.outfile), remove_any=args.remove, format=args.format)
-
     if args.interactive:
-        pdfdoc, csvpath = gather_document_stuff()
+        pdfdoc, outpath = gather_document_stuff()
+    else:
+        assert args.document is not None, f'{progname}: a PDF document is required without --interactive'
 
-        print(f'PDF: {pdfdoc.parts}; CSV: {csvpath.parts}')
-        sys.exit(1)
+        pdfdoc = args.document
+        outpath = sys.stdout if args.outfile is None else open_invoice(Path(args.csvpath), remove_any=args.remove, format=args.format)
 
-    parse_document(args.document.name, outfile, format=args.format)
+    parse_document(pdfdoc, outpath, format=args.format)
+    
     cleanup(outfile)
 
     sys.exit(0)
