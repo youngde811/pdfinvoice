@@ -224,7 +224,7 @@ def gather_document_stuff():
     docpath = Path(docpath)
 
     while len(csvpath) == 0:
-        csvpath = input('The CSV import file for Excel: ')
+        csvpath = input('The CSV import file to write for Excel: ')
 
     csvpath = Path(csvpath)
 
