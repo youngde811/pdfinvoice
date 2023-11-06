@@ -101,6 +101,20 @@ def extract_gorpy_line_item(src):
     return line
 
 
+def with_lineitem(lines, index):
+    i = index
+    line = lines[i]
+    item = None
+    
+    if lines[i + 1].startswith(' '):  # sadly, some PDFs have wrapping line items
+        i += 1
+        line += lines[i]
+
+    item = extract_lineitem(line)
+
+    return item, i, len(item) > 0
+
+
 def extract_lineitem(src):
     # thus far, we've encounted two different formats for invoice items, one of which has
     # gorpy characters in it and must be parsed differently. Sigh...
@@ -141,14 +155,9 @@ def parse_document_detail(invoice):
             if date is not None:
                 document['order_date'] = date.strftime("%m/%d/%Y %I:%M %p")
             elif item_start:
-                if lines[i + 1].startswith(' '):  # the item spans two lines, sadly
-                    i += 1
-
-                    line += lines[i]
-
-                line_item = extract_lineitem(line)
-
-                if line_item:
+                line_item, i, isitem = with_lineitem(lines, i)
+                
+                if isitem:
                     document['items'].append(line_item)
 
     return document
