@@ -10,14 +10,17 @@ import csv
 import datetime
 import json
 import os
+import platform
 import re
+import readline
 import sys
 import unicodedata
 
-from pathlib import Path
+from pathlib import Path, PurePath
 from PyPDF2 import PdfReader
 
 progname = os.path.basename(sys.argv[0])
+ostype = platform.system()
 
 date_re = re.compile(r'(?P<date>\d{1,2}?/\d{1,2}?/\d{4}?\s+\d{1,2}:\d{1,2}\s+(AM|PM)).*')
 header_re = re.compile(r'(?P<header>Item\s+Description\s+Color\s+Size\s+Pieces\s+Price)\s+.*')
@@ -48,6 +51,14 @@ def extract_header(line):
         header = m.group('header').split()
 
     return header
+
+
+def ismacos():
+    return ostype == 'Dawin'
+
+
+def iswindows():
+    return ostype == 'Windows'
 
 
 def extract_date(line):
@@ -196,6 +207,22 @@ def open_invoice(path, remove_any=False, format='json'):
     return fp
 
 
+def gather_document_stuff():
+    docpath = ''
+    csvpath = ''
+
+    while len(docpath) == 0:
+        docpath = input('Your PDF document to read: ')
+
+    docpath = PurePath(docpath)
+
+    while len(csvpath) == 0:
+        csvpath = input('The CSV import file for Excel: ')
+
+    csvpath = PurePath(csvpath)
+
+    return docpath, csvpath
+
 def cleanup(outfile):
     if outfile != sys.stdout:
         outfile.close()
@@ -225,7 +252,13 @@ def main():
         
     outfile = sys.stdout if args.outfile is None else open_invoice(Path(args.outfile), remove_any=args.remove, format=args.format)
 
-    parse_document(args.invoice.name, outfile, format=args.format)
+    if args.interactive:
+        pdfdoc, csvpath = gather_document_stuff()
+
+        print(f'PDF: {pdfdoc}; CSV: {csvpath}')
+        sys.exit(1)
+
+    parse_document(args.document.name, outfile, format=args.format)
     cleanup(outfile)
 
     sys.exit(0)
