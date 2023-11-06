@@ -211,14 +211,18 @@ def main():
 
     ap = argparse.ArgumentParser(prog=progname, description=desc)
 
-    ap.add_argument('invoice', type=argparse.FileType('r'), help='the PDF invoice file to read')
+    ap.add_argument('-d', '--document', dest='document', type=argparse.FileType('r'), default=None, help='the source PDF document')
     ap.add_argument('-i', '--interactive', dest='interactive', action='store_true', default=False, help='prompt for all arguments needed')
     ap.add_argument('-f', '--format', dest='format', metavar='FORMAT', choices=['csv', 'json'], default='json',
-                    help='output the document in FORMAT (choices: %(choices)s) default: %(default)s)')
+                    help='output the document in FORMAT (choices: %(choices)s) default: %(default)s')
     ap.add_argument('-o', '--outfile', dest='outfile', metavar='OUTFILE', type=str, default=None, help='write the CSV document to OUTFILE')
     ap.add_argument('-r', '--remove', dest='remove', default=False, action='store_true', help='first remove any existing invoice document at the same path')
 
     args = ap.parse_args()
+
+    if not args.interactive:
+        assert args.document is not None, f'{progname}: a PDF document is required without --interactive'
+        
     outfile = sys.stdout if args.outfile is None else open_invoice(Path(args.outfile), remove_any=args.remove, format=args.format)
 
     parse_document(args.invoice.name, outfile, format=args.format)
