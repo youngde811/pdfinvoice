@@ -5,14 +5,22 @@ rem -- This script is used to start our Python PDF invoice parser from a desktop
 rem -- The parser is used to create a CSV file that may be imported in Excel. All file names
 rem -- are retrieved by prompting Jen for their locations.
 
-setlocal
+setlocal EnableDelayedExpansion
 
 set progname=%~nx0
 
 set rval=0
 
-set /p pdffile="Your PDF document to read: "
+set defaultpdf=c:\Jamie\pdf
+set defaultcsv=c:\Jamie\csv
+
+:setpdf
+set /p pdffile="Your PDF document to read: %"
+if "%pdffile%"=="" goto setpdf
+
+:setcsv
 set /p csvpath="The CSV import file to write for Excel: "
+if "%csvpath%"=="" goto setcsv
 
 if not exist %pdffile% goto missingpdf
 
