@@ -13,10 +13,7 @@ set rval=0
 
 :setpdf
 set /p pdffile="Your PDF document to read: %"
-echo %pdffile%
 if not defined pdffile goto setpdf
-
-pause
 
 if not exist %pdffile% goto missingpdf
 
