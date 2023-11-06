@@ -212,6 +212,7 @@ def main():
     ap = argparse.ArgumentParser(prog=progname, description=desc)
 
     ap.add_argument('invoice', type=argparse.FileType('r'), help='the PDF invoice file to read')
+    ap.add_argument('-i', '--interactive', dest='interactive', action='store_true', default=False, help='prompt for all arguments needed')
     ap.add_argument('-f', '--format', dest='format', metavar='FORMAT', choices=['csv', 'json'], default='json',
                     help='output the document in FORMAT (choices: %(choices)s) default: %(default)s)')
     ap.add_argument('-o', '--outfile', dest='outfile', metavar='OUTFILE', type=str, default=None, help='write the CSV document to OUTFILE')
