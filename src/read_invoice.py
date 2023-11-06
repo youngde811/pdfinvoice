@@ -24,8 +24,9 @@ ostype = platform.system()
 date_re = re.compile(r'(?P<date>\d{1,2}?/\d{1,2}?/\d{4}?\s+\d{1,2}:\d{1,2}\s+(AM|PM)).*')
 header_re = re.compile(r'(?P<header>Item\s+Description\s+Color\s+Size\s+Pieces\s+Price)\s+.*')
 
-# Unfortunately, line items in these PDF documents are split by a newline after the description, so we
-# use two regular expressions to extract the pieces we want.
+# Unfortunately, line items in some of these PDF documents are split by a newline after the description, so we
+# use two regular expressions to extract the pieces we want. Other documents have single-line items, but THEY
+# begin with line numbers. No consistency. Sigh...
 
 lineitem_start_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+')
 lineitem_re = re.compile(r'(?:\d+\s+)?(?P<id>\d{8}?)\s+(?P<style>.+)\s+(?P<color>.+?)(?P<size>\w+)\s+(?:[\w,-])*?(?P<quantity>\d+)\s+(?P<cost>[0-9.]+)')
