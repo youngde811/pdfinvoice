@@ -73,7 +73,7 @@ def extract_line_item(src):
 
     if has_groups(m):
         for field in ('id', 'style', 'color', 'size', 'quantity', 'cost'):
-            line[field] = normalize(m.group(field))
+            line[field] = normalize(m.group(field)).strip()
 
     return line
 
