@@ -54,7 +54,7 @@ def extract_header(line):
 
 
 def ismacos():
-    return ostype == 'Dawin'
+    return ostype == 'Darwin'
 
 
 def iswindows():
