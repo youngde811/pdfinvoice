@@ -90,6 +90,16 @@ def extract_gorpy_line_item(src):
     return line
 
 
+def extract_lineitem(src):
+    # thus far, we've encounted two different formats for invoice items, one of which has
+    # gorpy characters in it and must be parsed differently. Sigh...
+    
+    li = extract_gorpy_line_item(src)
+    li = extract_line_item(src) if not li else li
+
+    return li
+
+
 def lineitem_start(src):
     m = re.match(lineitem_start_re, src)
 
@@ -120,15 +130,12 @@ def parse_document_detail(invoice):
             if date is not None:
                 document['order_date'] = date.strftime("%m/%d/%Y %I:%M %p")
             elif item_start:
-                if lines[i + 1].startswith(' '):
+                if lines[i + 1].startswith(' '):  # the item spans two lines, sadly
                     i += 1
 
                     line += lines[i]
 
-                line_item = extract_gorpy_line_item(line)
-
-                if not line_item:
-                    line_item = extract_line_item(line)
+                line_item = extract_lineitem(line)
 
                 if line_item:
                     document['items'].append(line_item)
