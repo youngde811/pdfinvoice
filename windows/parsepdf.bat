@@ -27,16 +27,25 @@ goto finish
 
 :missingpdf
 echo %progname%: no PDF document at %pdffile%
-set rval=1
 
-goto finish
+set rval=1
+goto endscript
 
 :parsefailed
 echo %progname%: failed to parse PDF %pdffile%
-set rval=1
 
-goto finish
+set rval=1
+goto endscript
 
 :finish
+
+:continue
+echo Conversion completed
+set /p continue="Type Y or N when you are ready to go on: "
+
+if /i "%continue%" equ "Y" goto endscript
+goto continue
+
+:endscript
 endlocal
 exit /b %rval%
