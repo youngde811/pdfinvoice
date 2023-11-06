@@ -23,24 +23,24 @@ python %parser% --document %pdffile% --outfile %csvpath% --format csv --remove
 if ERRORLEVEL 1 goto parsefailed
 
 echo %progname%: CSV created at: "%csvpath%"
-goto finish
+goto success
 
 :missingpdf
 echo %progname%: no PDF document at %pdffile%
 
 set rval=1
-goto endscript
+goto continue
 
 :parsefailed
 echo %progname%: failed to parse PDF %pdffile%
 
 set rval=1
-goto endscript
+goto continue
 
-:finish
+:success
+echo Conversion to CSV completed.
 
 :continue
-echo Conversion completed
 set /p continue="Type Y or N when you are ready to go on: "
 
 if /i "%continue%" equ "Y" goto endscript
