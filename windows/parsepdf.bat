@@ -18,11 +18,11 @@ set defaultcsv=c:\Jamie\csv
 set /p pdffile="Your PDF document to read: %"
 if "%pdffile%"=="" goto setpdf
 
+if not exist %pdffile% goto missingpdf
+
 :setcsv
 set /p csvpath="The CSV import file to write for Excel: "
 if "%csvpath%"=="" goto setcsv
-
-if not exist %pdffile% goto missingpdf
 
 set parser=c:\pdfinvoice\src\read_invoice.py
 
