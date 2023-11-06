@@ -2,7 +2,8 @@
 @echo off
 
 rem -- This script is used to start our Python PDF invoice parser from a desktop shortcut.
-rem -- The parser is used to create a CSV file that may be imported in Excel.
+rem -- The parser is used to create a CSV file that may be imported in Excel. All file names
+rem -- are retrieved by prompting Jen for their locations.
 
 setlocal
 
