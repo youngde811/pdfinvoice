@@ -1,4 +1,3 @@
-<#
 
 rem @echo off
 
@@ -12,20 +11,14 @@ set progname=%~nx0
 
 set rval=0
 
-rem -- select the PDF to parse
+set pdffile=c:\Jamie\pdf\latest.pdf
+set csvfile=c:\Jamie\csv\latest.csv
 
-:getpdf
-for /f "delims=" %%I in ('powershell -noprofile "iex (${%~f0} | out-string)"') do (
-    echo You chose %%~I
-)
-
-:setcsv
-set /p csvpath="The CSV import file to write for Excel: "
-if not defined csvpath goto setcsv
+if not exist %pdffile% goto missingpdf
 
 set parser=c:\pdfinvoice\src\read_invoice.py
 
-python %parser% --document %pdffile% --outfile %csvpath% --format csv --remove
+python %parser% --document %pdffile% --outfile %csvfile% --format csv --remove
 
 if ERRORLEVEL 1 goto parsefailed
 
