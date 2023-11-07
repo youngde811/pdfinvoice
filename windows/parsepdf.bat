@@ -18,6 +18,8 @@ if not exist %pdffile% goto missingpdf
 
 set parser=c:\pdfinvoice\src\read_invoice.py
 
+echo Parsing input PDF at: %pdffile%
+
 python %parser% --document %pdffile% --outfile %csvfile% --format csv --remove
 
 if ERRORLEVEL 1 goto parsefailed
