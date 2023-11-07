@@ -11,11 +11,11 @@ set progname=%~nx0
 
 set rval=0
 
-:setpdf
-set /p pdffile="Your PDF document to read: %"
-if not defined pdffile goto setpdf
+:getpdf
+set "foldercmd="(new-object -COM 'Shell.Application')^
+.BrowseForFolder(0,'Please choose a PDF file.',0,0).self.path""
 
-if not exist %pdffile% goto missingpdf
+for /f "usebackq delims=" %%I in (`powershell %foldercmd%`) do set "folder=%%I"
 
 :setcsv
 set /p csvpath="The CSV import file to write for Excel: "
