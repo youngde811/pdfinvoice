@@ -18,7 +18,7 @@ if not exist %pdffile% goto missingpdf
 
 set parser=c:\pdfinvoice\src\read_invoice.py
 
-echo Parsing input PDF at: %pdffile%
+echo %progname%: Parsing input PDF at: %pdffile%
 
 python %parser% --document %pdffile% --outfile %csvfile% --format csv --remove
 
@@ -40,7 +40,7 @@ set rval=1
 goto continue
 
 :success
-echo Conversion to CSV completed.
+echo %progname%: Conversion to CSV completed.
 
 :continue
 set /p continue="Type [yes] when you are ready to go on: "
