@@ -12,10 +12,9 @@ set progname=%~nx0
 set rval=0
 
 :getpdf
-set "pdfcmd="New-Object System.Windows.Forms.OpenFileDialog -Property @{Multiselect = $false^Filter = 'PDF (*.pdf)'}"+
-
-for /f "usebackq delims=" %%I in (`powershell %pdfcmd%`) do set "pdffile=%%I"
-echo %pdffile%
+for /f "delims=" %%I in ('powershell -noprofile "iex (${%~f0} | out-string)"') do (
+    echo You chose %%~I
+)
 
 :setcsv
 set /p csvpath="The CSV import file to write for Excel: "
