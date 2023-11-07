@@ -22,7 +22,7 @@ python %parser% --document %pdffile% --outfile %csvfile% --format csv --remove
 
 if ERRORLEVEL 1 goto parsefailed
 
-echo %progname%: CSV created at: "%csvpath%"
+echo %progname%: CSV created at: %csvfile%
 goto success
 
 :missingpdf
