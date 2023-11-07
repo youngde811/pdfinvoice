@@ -11,6 +11,8 @@ set progname=%~nx0
 
 set rval=0
 
+rem -- select the PDF to parse
+
 :getpdf
 for /f "delims=" %%I in ('powershell -noprofile "iex (${%~f0} | out-string)"') do (
     echo You chose %%~I
