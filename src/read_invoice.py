@@ -105,7 +105,7 @@ def with_lineitem(lines, index):
     i = index
     line = lines[i]
     item = None
-    
+
     if lines[i + 1].startswith(' '):  # sadly, some PDFs have wrapping line items
         i += 1
         line += lines[i]
@@ -118,7 +118,7 @@ def with_lineitem(lines, index):
 def extract_lineitem(src):
     # thus far, we've encounted two different formats for invoice items, one of which has
     # gorpy characters in it and must be parsed differently. Sigh...
-    
+
     li = extract_gorpy_line_item(src)
     li = extract_line_item(src) if not li else li
 
@@ -139,7 +139,6 @@ def parse_document_detail(invoice):
     }
 
     document['page_count'] = len(invoice.pages)
-    ncolumns = len(document['header'])
 
     for pid in range(len(invoice.pages)):
         page = invoice.pages[pid]
@@ -156,7 +155,7 @@ def parse_document_detail(invoice):
                 document['order_date'] = date.strftime("%m/%d/%Y %I:%M %p")
             elif item_start:
                 line_item, i, isitem = with_lineitem(lines, i)
-                
+
                 if isitem:
                     document['items'].append(line_item)
 
